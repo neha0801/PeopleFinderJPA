@@ -46,4 +46,20 @@ Persistence.createEntityManagerFactory("PeopleFinder");
 		}		
 		return company;
 	}
+	
+	public static List<People> getEmployees(int id) {
+		EntityManager em = DBUtil.getEmFactory().createEntityManager();
+		String sql = "select p from People p where p.id =" + id;
+		System.out.println(sql);
+		TypedQuery<People> query= em.createQuery(sql, People.class);
+		List<People> people;
+		try{
+			people=query.getResultList();
+			if(people==null||people.isEmpty())
+				people=null;
+		}finally{
+			em.close();
+		}		
+		return people;
+	}
 }

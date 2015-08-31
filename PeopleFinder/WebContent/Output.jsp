@@ -25,10 +25,13 @@ table{
 	width:30%
 }
 body {
-	font-family: "Times new roman";
-	color: blue;
-	background-color: #a6d2d2;
-	
+	font-family: "Bookman Old Style";
+	color: red;
+	background-image: url('people.jpg');
+}
+nav{
+	font-family: "Bookman Old Style";
+	color: red;
 }
 table td{border-color:red;}
 /*unvisited link*/
@@ -51,10 +54,9 @@ a:active {
 </head>
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
-      <div class="navbar-header"style=font-family:Bookman>Customers</a>
-    </div>
+      <div class="navbar-header">Customers</div>
     <div>
-      <ul class="nav navbar-nav" style=font-family:Bookman>
+      <ul class="nav navbar-nav">
         <li ><a href="FindPeople.jsp"style=color:white><b>Home</b></a></li>
       </ul>
     </div>

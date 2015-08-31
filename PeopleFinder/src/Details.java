@@ -1,15 +1,14 @@
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.Properties;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import model.People;
+import customTools.DBUtil;
 
 /**
  * Servlet implementation class Details
@@ -31,60 +30,80 @@ public class Details extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String name = request.getParameter("name");
-		String  compId= request.getParameter("companyId");
-		String message="";
-		
-		String url = "jdbc:oracle:thin:testuser/password@localhost";
-		Properties props = new Properties();
-		props.setProperty("user", "testdb");
-		props.setProperty("password", "password");
-		try {
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			Connection con = DriverManager.getConnection(url, props);
-			Statement st = con.createStatement();
-			System.out.println("connection established successfully...!!");
-			message+="<br></br>";
+		int id = Integer.parseInt(request.getParameter("peopleId"));
+		String tableData = "";
+		tableData+="<br></br>";
+		List<People> pList = DBUtil.getEmployees(id);
 			
-			message += "<table class = 'table table-bordered table-striped'>"; 
-			if(name!=null){
-				String sql = "SELECT p.FULLNAME, p.TITLE, p.FIRSTNAME,"+
-						  "p.LASTNAME,  p.STREETADDRESS,  l.CITY,"
-						  +"l.STATES,  p.ZIPCODE,  p.EMAILADDRESS,"+
-						  "p.POSITIONS,  c.COMPANY	FROM people p	JOIN company c "+
-						  "ON p.COMPANY_ID=c.COMPANY_ID	JOIN location l ON l.LOCATION_ID= p.LOCATION_ID "
-						  + "where concat(p.firstname,p.lastName)  = '"+ name +"'";
-				System.out.println(sql);
-				ResultSet rs = st.executeQuery(sql);
+			if(pList!=null){
+				tableData = "<br><br>";
+				tableData += "\r<table class=table border=1 table-striped>";
+				tableData += "<tr style=background-color:green>";
+				tableData += "<th style=align:center>";
+				tableData += "Full Name";
+				tableData += "</th>";
+				tableData += "<th style='text-align:center'>";
+				tableData += "Title";
+				tableData += "</th>";
+				tableData += "<th style='text-align:center'>";
+				tableData += "Street Address";
+				tableData += "</th>";
+				tableData += "<th style='text-align:center'>";
+				tableData += "City";
+				tableData += "</th>";
+				tableData += "<th style='text-align:center'>";
+				tableData += "State";
+				tableData += "</th>";
+				tableData += "<th style='text-align:center'>";
+				tableData += "Zipcode";
+				tableData += "</th>";
+				tableData += "<th style='text-align:center'>";
+				tableData += "Email address";
+				tableData += "</th>";
+				tableData += "<th style='text-align:center'>";
+				tableData += "Position";
+				tableData += "</th>";
+				tableData += "<th style='text-align:center'>";
+				tableData += "Company";
+				tableData += "</th>";
+				tableData += "</tr>\r";
 
-				message += "<tr><th><b> Full Name</b> </th><th> <b>Title</b> </th><th> <b> First Name </b></th><th> <b> Last Name </b></th><th> <b> Street Address </b>" +
-						"</th><th> <b> City </b></th><th> <b> State </b></th><th> <b> Zipcode </b></th><th> <b> Email Address </b></th><th><b> Position </b></th><th><b> Company </b></th></tr>";
-				
-				if(rs.next()){
-					message+= "<tr><td>" + rs.getString(1) + "</td><td>" + rs.getString(2) + "</td><td>"
-						+ rs.getString(3) + "</td><td>" + rs.getString(4) + "</td><td>" + rs.getString(5) +"</td><td>" + rs.getString(6) + "</td><td>" + rs.getString(7) 
-						+ "</td><td>" + rs.getString(8) + "</td><td>" + rs.getString(9) + "</td><td>" + rs.getString(10)   + "</td><td>" + rs.getString(11) +"</td></tr>";
+				for (People p : pList) {
+					tableData += "<tr class='info'>";
+					tableData += "<td>";
+					tableData += p.getFullname();
+					tableData += "</td>";
+					tableData += "<td>";
+					tableData += p.getTitle();
+					tableData += "</td>";
+					tableData += "<td>";
+					tableData += p.getStreetaddress();
+					tableData += "</td>";
+					tableData += "<td>";
+					tableData += p.getLocation().getCity();
+					tableData += "</td>";
+					tableData += "<td>";
+					tableData += p.getLocation().getStates();
+					tableData += "</td>";
+					tableData += "<td>";
+					tableData += p.getZipcode();
+					tableData += "</td>";
+					tableData += "<td>";
+					tableData += p.getEmailaddress();
+					tableData += "</td>";
+					tableData += "<td>";
+					tableData += p.getPositions();
+					tableData += "</td>";
+					tableData += "<td>";
+					tableData += p.getCompany().getCompany();
+					tableData += "</td>";
+					tableData += "</tr>\r";
 				}
-				
-			} else if (compId!=null){
-				String sql = "SELECT COMPANY_id,Company	FROM company where COMPANY_id = "+ compId ;
-				System.out.println(sql);
-				ResultSet rs = st.executeQuery(sql);
-
-				message += "<tr><th><b> Company ID </b></th> <th> <b> Company </b></th></tr>";
-				
-				if(rs.next()){
-				message+= "<tr><td>" + rs.getString(1) + "</td><td>"  + rs.getString(2) + "</td></tr>" ;
-				}
-
+				tableData += "</table>\r";
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		message+="<br></br>";
-		message+="</table>";
-		message+="<a class='btn pull-left btn-primary btn-lg' href='FindPeople.jsp'>Home Page</a>";
-		request.setAttribute("message", message);
+
+		tableData+="<a class='btn pull-left btn-primary btn-lg' href='FindPeople.jsp'>Home Page</a>";
+		request.setAttribute("message", tableData);
 		getServletContext().getRequestDispatcher("/Output.jsp").forward(
 				request, response);
 	}
